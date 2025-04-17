@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Grayscale Image Converter</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background-color: #f7f7f7;
+      text-align: center;
+    }
+
+    canvas, img {
+      max-width: 100%;
+      margin: 20px 0;
+    }
+
+    input[type="file"] {
+      margin: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Grayscale Image Converter</h2>
+
+  <input type="file" id="upload" accept="image/*"><br>
+
+  <canvas id="canvas"></canvas>
+
+  <script>
+    const uploadInput = document.getElementById('upload');
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+
+    uploadInput.addEventListener('change', function () {
+      const file = this.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+
+      reader.onload = function (e) {
+        const img = new Image();
+        img.src = e.target.result;
+
+        img.onload = function () {
+          canvas.width = img.width;
+          canvas.height = img.height;
+
+          ctx.drawImage(img, 0, 0);
+
+          let imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+          let data = imageData.data;
+
+          // Loop through every pixel
+          for (let i = 0; i < data.length; i += 4) {
+            let r = data[i];
+            let g = data[i + 1];
+            let b = data[i + 2];
+
+            // Grayscale formula
+            let gray = 0.3 * r + 0.59 * g + 0.11 * b;
+
+            data[i] = data[i + 1] = data[i + 2] = gray;
+          }
+
+          // Update the canvas
+          ctx.putImageData(imageData, 0, 0);
+        };
+      };
+
+      reader.readAsDataURL(file);
+    });
+  </script>
+
+</body>
+</html>
